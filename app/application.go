@@ -1,9 +1,11 @@
 package app
 
 import (
-	"log"
+	"items_api/client/elasticsearch"
 	"net/http"
 	"time"
+
+	"items_api/log"
 
 	"github.com/gorilla/mux"
 )
@@ -13,6 +15,7 @@ var (
 )
 
 func StartApplication() {
+	elasticsearch.Init()
 	mapUrl()
 
 	srv := &http.Server{
@@ -24,8 +27,9 @@ func StartApplication() {
 		IdleTimeout: 60 * time.Second,
     }
 
+	log.Info("about to start application")
+
     if err := srv.ListenAndServe(); err != nil {
 		panic(err)
 	}
-	log.Println("server start at localhost:8000")
 }

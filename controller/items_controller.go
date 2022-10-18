@@ -29,7 +29,13 @@ func (c *itemsController)Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	sellerId := oauth.GetCienId(r)
 
+	if sellerId == 0 {
+		respErr := restError.NewUnauthorizedError("invalid credential")
+		http_utils.ResponseError(w,*respErr)
+		return
+	}
 
 	requestBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -48,7 +54,7 @@ func (c *itemsController)Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	itemRequest.Seller = oauth.GetCienId(r)
+	itemRequest.Seller = sellerId
 
 	result, saveErr := service.ItemsService.Create(itemRequest)
 	if err != nil {

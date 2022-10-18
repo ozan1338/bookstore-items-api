@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	resError "items_api/utils/errors"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -78,6 +79,7 @@ func AuthenticateRequest(request *http.Request) *resError.RestError {
 
 	//http://localhost:8081/resource?access_token=abc123
 	accessTokenId := strings.TrimSpace(request.URL.Query().Get(paramterAccessToken))
+	// fmt.Println(accessTokenId)
 
 	if accessTokenId == "" {
 		return nil
@@ -110,6 +112,7 @@ func cleanRequest(request *http.Request) {
 }
 
 func getAccessToken(accessTokenId string) (*accessToken, *resError.RestError) {
+	log.Println("incoming request")
 	response := oauthRestClient.Get(fmt.Sprintf("/oauth/access_token/%s",accessTokenId))
 
 	if response == nil || response.Response == nil {
