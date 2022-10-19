@@ -11,13 +11,13 @@ var (
 )
 
 type itemServiceInterface interface {
-	Create(items.Item) (*items.Item, *restError.RestError)
-	Get(string) (*items.Item, *restError.RestError) 
+	Create(items.Item) (*items.Item, restError.RestError)
+	Get(string) (*items.Item, restError.RestError) 
 }
 
 type itemsService struct {}
 
-func (s *itemsService) Create(itemRequest items.Item) (*items.Item, *restError.RestError) {
+func (s *itemsService) Create(itemRequest items.Item) (*items.Item, restError.RestError) {
 	if err := itemRequest.Save(); err != nil {
 		return nil, err
 	}
@@ -25,6 +25,6 @@ func (s *itemsService) Create(itemRequest items.Item) (*items.Item, *restError.R
 	return &itemRequest,nil
 }
 
-func (s *itemsService) Get(title string) (*items.Item, *restError.RestError) {
-	return nil,&restError.RestError{Message: "not ready",Status: http.StatusNotImplemented, Error: "not_implemented"}
+func (s *itemsService) Get(title string) (*items.Item, restError.RestError) {
+	return nil, restError.NewRestError("not ready",http.StatusNotImplemented,"not_implemented")
 }

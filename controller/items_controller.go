@@ -25,7 +25,7 @@ type itemsController struct {}
 func (c *itemsController)Create(w http.ResponseWriter, r *http.Request) {
 	if err := oauth.AuthenticateRequest(r); err != nil {
 		//TODO return error to the user
-		http_utils.ResponseError(w, *err)
+		http_utils.ResponseError(w, err)
 		return
 	}
 
@@ -33,14 +33,14 @@ func (c *itemsController)Create(w http.ResponseWriter, r *http.Request) {
 
 	if sellerId == 0 {
 		respErr := restError.NewUnauthorizedError("invalid credential")
-		http_utils.ResponseError(w,*respErr)
+		http_utils.ResponseError(w,respErr)
 		return
 	}
 
 	requestBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		respError := restError.NewBadRequestError("invalid request body")
-		http_utils.ResponseError(w, *respError)
+		http_utils.ResponseError(w, respError)
 		return
 	}
 
@@ -50,7 +50,7 @@ func (c *itemsController)Create(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.Unmarshal(requestBody, &itemRequest); err != nil {
 		respError := restError.NewBadRequestError("invalid json body")
-		http_utils.ResponseError(w, *respError)
+		http_utils.ResponseError(w, respError)
 		return
 	}
 
@@ -59,7 +59,7 @@ func (c *itemsController)Create(w http.ResponseWriter, r *http.Request) {
 	result, saveErr := service.ItemsService.Create(itemRequest)
 	if err != nil {
 		//TODO return error to the user
-		http_utils.ResponseError(w, *saveErr)
+		http_utils.ResponseError(w, saveErr)
 		return
 	}
 
