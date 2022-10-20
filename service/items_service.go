@@ -3,7 +3,6 @@ package service
 import (
 	items "items_api/domain/items"
 	restError "items_api/utils/errors"
-	"net/http"
 )
 
 var (
@@ -25,6 +24,13 @@ func (s *itemsService) Create(itemRequest items.Item) (*items.Item, restError.Re
 	return &itemRequest,nil
 }
 
-func (s *itemsService) Get(title string) (*items.Item, restError.RestError) {
-	return nil, restError.NewRestError("not ready",http.StatusNotImplemented,"not_implemented")
+func (s *itemsService) Get(id string) (*items.Item, restError.RestError) {
+	item := items.Item{Id:id}
+
+	if err := item.Get(); err != nil {
+		return nil, err
+	}
+
+
+	return &item,nil
 }

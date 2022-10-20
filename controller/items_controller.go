@@ -9,6 +9,9 @@ import (
 	restError "items_api/utils/errors"
 	"items_api/utils/http_utils"
 	"net/http"
+	"strings"
+
+	"github.com/gorilla/mux"
 )
 
 var (
@@ -68,5 +71,15 @@ func (c *itemsController)Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *itemsController) Get(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
 
+	itemId := strings.TrimSpace(vars["id"])
+
+	item,err := service.ItemsService.Get(itemId)
+	if err != nil {
+		http_utils.ResponseError(w,err)
+		return
+	}
+
+	http_utils.ResponseJson(w, http.StatusOK, item)
 }
