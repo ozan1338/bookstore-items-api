@@ -19,6 +19,7 @@ type esClientInterface interface {
 	Index(string,interface{}) (*elastic.IndexResponse,error)
 	Get(string,string) (*elastic.GetResult, error)
 	Search(string, elastic.Query) (*elastic.SearchResult, error)
+	Update(string,string, interface{}) (*elastic.UpdateResponse, error)
 }
 
 type esClient struct {
@@ -84,4 +85,17 @@ func (c *esClient) Search(index string, query elastic.Query) (*elastic.SearchRes
 	}
 
 	return result, nil
+}
+
+func (c *esClient) Update(index, id string, newItems interface{}) (*elastic.UpdateResponse, error) {
+	ctx := context.Background()
+
+	result, err := c.client.Update().Index(index).Id(id).Doc(newItems).Do(ctx)
+
+	if err != nil {
+		log.Error(fmt.Sprintf("error when trying to update document in id %s",id), err)
+		return nil,err
+	}
+
+	return result,nil
 }

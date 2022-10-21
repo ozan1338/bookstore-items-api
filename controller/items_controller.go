@@ -23,6 +23,7 @@ type itemsControllerInterface interface{
 	Create(w http.ResponseWriter, r *http.Request)
 	Get(w http.ResponseWriter, r *http.Request)
 	Search(w http.ResponseWriter, r *http.Request) 
+	Update(w http.ResponseWriter, r *http.Request)
 }
 
 type itemsController struct {}
@@ -112,4 +113,38 @@ func (c *itemsController) Search(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http_utils.ResponseJson(w, http.StatusOK, items)
+}
+
+func (c *itemsController) Update(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	itemId := strings.TrimSpace(vars["id"])
+
+	var newItem items.Item
+
+	bytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		apiErr := restError.NewBadRequestError("invalid json body")
+		http_utils.ResponseError(w,apiErr)
+		return
+	}
+
+	defer r.Body.Close()
+
+	if err := json.Unmarshal(bytes, &newItem); err != nil {
+		apiErr := restError.NewBadRequestError("invalid json body when unmarshall")
+		http_utils.ResponseError(w,apiErr)
+		return
+	}
+
+	newItem.Id = itemId
+
+	item,updateErr := service.ItemsService.Update(newItem)
+
+	if updateErr != nil {
+		http_utils.ResponseError(w,updateErr)
+		return
+	}
+
+	http_utils.ResponseJson(w,http.StatusOK, item)
 }

@@ -83,3 +83,12 @@ func (i *Item) Search(query es_queries.EsQuery) ([]Item, restError.RestError) {
 
 	return hitResult, nil
 }
+
+func (i *Item) Update() restError.RestError {
+	_, err := elasticsearch.Client.Update(indexItems,i.Id,i)
+	if err != nil {
+		return restError.NewInternalServerError("error when trying to update item")
+	}
+
+	return nil
+}
