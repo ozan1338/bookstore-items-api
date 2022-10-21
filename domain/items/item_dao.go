@@ -92,3 +92,13 @@ func (i *Item) Update() restError.RestError {
 
 	return nil
 }
+
+func (i *Item) Delete() restError.RestError {
+	_,err := elasticsearch.Client.Delete(indexItems,i.Id)
+
+	if err != nil {
+		return restError.NewInternalServerError("Error when trying to delete item")
+	}
+
+	return nil
+}

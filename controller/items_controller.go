@@ -24,6 +24,7 @@ type itemsControllerInterface interface{
 	Get(w http.ResponseWriter, r *http.Request)
 	Search(w http.ResponseWriter, r *http.Request) 
 	Update(w http.ResponseWriter, r *http.Request)
+	Delete(w http.ResponseWriter, r *http.Request)
 }
 
 type itemsController struct {}
@@ -147,4 +148,17 @@ func (c *itemsController) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http_utils.ResponseJson(w,http.StatusOK, item)
+}
+
+func (c *itemsController) Delete(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	itemId := strings.TrimSpace(vars["id"])
+
+	if err := service.ItemsService.Delete(itemId); err != nil {
+		http_utils.ResponseError(w,err)
+		return
+	}
+
+	http_utils.ResponseJson(w, http.StatusOK, map[string]interface{}{"status":"deleted"})
 }
