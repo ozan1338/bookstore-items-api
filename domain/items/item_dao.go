@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"items_api/client/elasticsearch"
+	es_queries "items_api/domain/queries"
 	restError "items_api/utils/errors"
 	"strings"
 )
@@ -51,4 +52,34 @@ func (i *Item) Get() restError.RestError {
 	i.Id = itemId
 
 	return nil
+}
+
+func (i *Item) Search(query es_queries.EsQuery) ([]Item, restError.RestError) {
+	result, err := elasticsearch.Client.Search(indexItems, query.Build())
+	
+	if err != nil {
+		return nil, restError.NewInternalServerError("error when trying to search documents")
+	}
+
+	hitResult := make([]Item, result.TotalHits())
+
+	for index, hit := range result.Hits.Hits {
+		bytes, err := hit.Source.MarshalJSON()
+		if err != nil {
+			return nil, restError.NewInternalServerError("error when trying to MarshalJson")
+		}
+
+		var item Item
+		if err := json.Unmarshal(bytes, &item); err != nil {
+			return nil, restError.NewInternalServerError("error when trying to parse response")
+		}
+		item.Id = hit.Id
+		hitResult[index] = item
+	}
+
+	if len(hitResult) == 0 {
+		return nil, restError.NewNotFoundError("no items found matching given criteria")
+	}
+
+	return hitResult, nil
 }

@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	oauth "items_api/api/oauth"
 	"items_api/domain/items"
+	es_queries "items_api/domain/queries"
 	"items_api/service"
 	restError "items_api/utils/errors"
 	"items_api/utils/http_utils"
@@ -20,7 +21,8 @@ var (
 
 type itemsControllerInterface interface{
 	Create(w http.ResponseWriter, r *http.Request)
-	Get(w http.ResponseWriter, r *http.Request) 
+	Get(w http.ResponseWriter, r *http.Request)
+	Search(w http.ResponseWriter, r *http.Request) 
 }
 
 type itemsController struct {}
@@ -82,4 +84,32 @@ func (c *itemsController) Get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http_utils.ResponseJson(w, http.StatusOK, item)
+}
+
+func (c *itemsController) Search(w http.ResponseWriter, r *http.Request) {
+	var query es_queries.EsQuery
+
+	bytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		apiErr := restError.NewBadRequestError("invalid json body")
+		http_utils.ResponseError(w,apiErr)
+		return
+	}
+
+	defer r.Body.Close()
+
+	if err := json.Unmarshal(bytes, &query);err != nil {
+		apiErr := restError.NewBadRequestError("invalid json body when unmarshall")
+		http_utils.ResponseError(w,apiErr)
+		return
+	}
+
+
+	items, searchErr := service.ItemsService.Search(query); 
+	if searchErr != nil {
+		http_utils.ResponseError(w,searchErr)
+		return
+	}
+
+	http_utils.ResponseJson(w, http.StatusOK, items)
 }
